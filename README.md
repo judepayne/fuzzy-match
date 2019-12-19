@@ -1,8 +1,6 @@
 # fuzzy-match
-
+A Clojure library for fuzzy matching two strings
 ![fuzzy](fuzzy.png)
-### A Clojure library for fuzzy matching two strings
-
 
 This library is not deployed Clojars so instead can be installed from the latest git SHA using tools.deps.
 
