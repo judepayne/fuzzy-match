@@ -1,4 +1,6 @@
 ;; deps.edn
 {:paths ["src"]
- :deps {org.clojure/clojure {:mvn/version "1.10.1"}}
+ :deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        org.clojure/core.memoize {:git/url "https://github.com/clojure/core.memoize.git"
+                                  :sha "e1b448aec9b0aa9ce6754373681cfc54c0d5359e"}}
  :aliases {}}

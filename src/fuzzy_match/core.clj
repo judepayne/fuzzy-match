@@ -1,4 +1,5 @@
-(ns fuzzy-match.core)
+(ns fuzzy-match.core
+  (:require [clojure.core.memoize :as memo]))
 
 ;; Levenshtein
 (declare levenshtein)
@@ -19,7 +20,18 @@
        (+ (levenshtein (rest a) (rest b)) cost)))))
 
 
-(def ^:private levenshtein (memoize levenshtein-raw))
+(declare ^:dynamic *lu-threshold*)  ;; size of the memoization cache
+
+;; We memoize the levenshtein function since it is slow.
+;; Since this is a library for us in someone else's program, we use
+;; clojure.core.memoize rather than the simple memoize function. This allows
+;; for the size of the memoization cache to be controlled.
+(def ^:private levenshtein (memo/lu levenshtein-raw :lu/threshold *lu-threshold*))
+
+;; To alter lu-threshold from another namespace (i.e. when this is a library), use
+;; (binding [fuzzy-match.core/*lu-threshold 128]
+;;   ... )
+(def ^:dynamic *lu-threshold* 512)
 
 
 ;; Permutations
@@ -49,18 +61,23 @@
 ;; Public Clojure api
 (defn fuzzy-match
   "Takes two strings and returns the Levenshtein distance between them.
-   If optional :ignore-chars is provided, those characters will be removed from both
-   strings, the latter string will be split at any occurrence of each of those chars
-   and the parts permuted. The Levenshtein distance returned is the minimum between
-   the stripped first string and the permutations of the stripped, split latter string."
-  [s1 s2 & {:keys  [ignore-chars] :or {ignore-chars nil}}]
+   If ingore-characters, a third string is specified, the characters in that string
+   will be removed from the first string, and used to split the second string, then
+   removed. After splitting, the parts of the second string will be rotated into all
+   permutations, and the minimum Levenshtein distance between the first string and
+   each of the rearrangements of the second string returned."
+  ([s1 s2]
+   (fuzzy-match s1 s2 nil))
 
-  (case ignore-chars
-    
-    nil (levenshtein s1 s2)
-    
-    (let [src  (strip s1 ignore-chars)
-          perms (-> (clojure.string/split s2 (str->re ignore-chars))
-                    permutations)
-          tgts (distinct (map #(apply str %) perms))]
-      (apply min (map #(levenshtein src %) tgts)))))
+  ([s1 s2 ignore-characters]
+   (case ignore-characters
+     
+     nil (levenshtein s1 s2)
+     
+     (let [src  (strip s1 ignore-characters)
+           perms (->> (clojure.string/split s2 (str->re ignore-characters))
+                      (filter (complement empty?))  ;; remove empty string parts
+                      permutations                 
+                      (map #(apply str %)))]        ;; reassemble as strings after permutation
+
+       (apply min (map #(levenshtein src %) perms))))))
