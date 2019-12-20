@@ -5,7 +5,7 @@
 (declare levenshtein)
 
 
-(defn- levenshtein-raw
+(defn levenshtein-raw
   "Calculates the levenshtein distane between two strings"
   [a b]
   (let
@@ -20,18 +20,17 @@
        (+ (levenshtein (rest a) (rest b)) cost)))))
 
 
-(declare ^:dynamic *lu-threshold*)  ;; size of the memoization cache
 
+(def default-lu-threshold 24)
 ;; We memoize the levenshtein function since it is slow.
 ;; Since this is a library for us in someone else's program, we use
 ;; clojure.core.memoize rather than the simple memoize function. This allows
 ;; for the size of the memoization cache to be controlled.
-(def ^:private levenshtein (memo/lu levenshtein-raw :lu/threshold *lu-threshold*))
-
+(def ^:dynamic *levenshtein* (memo/lu levenshtein-raw :lu/threshold default-lu-threshold))
 ;; To alter lu-threshold from another namespace (i.e. when this is a library), use
-;; (binding [fuzzy-match.core/*lu-threshold* 128]
-;;   ... )
-(def ^:dynamic *lu-threshold* 512)
+;; (binding [fuzzy-match.core/*levenshtein* (memo/lu levenshtein-raw :lu/threshold <my-value>)]
+;;   (fuzzy-match ... )
+
 
 
 ;; Permutations
@@ -80,4 +79,4 @@
                       permutations                 
                       (map #(apply str %)))]        ;; reassemble as strings after permutation
 
-       (apply min (map #(levenshtein src %) perms))))))
+       (apply min (map #(*levenshtein* src %) perms))))))
