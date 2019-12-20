@@ -15,7 +15,10 @@ The challenge of this exercise is to write a library that does fuzzy sring match
  The Levenshtein distance is then calculated between the first string and each of the rearrangements of the second and the minimum Levenshtein distance returned.
  
  Please see the `fuzzy-match` function in the `fuzzy-match.core` namespace.
- 
+
+> How could we make the fuzzy-matching function richer?
+ - synonyms
+ - what else?
  
  ## License
  
