@@ -29,7 +29,7 @@
 (def ^:private levenshtein (memo/lu levenshtein-raw :lu/threshold *lu-threshold*))
 
 ;; To alter lu-threshold from another namespace (i.e. when this is a library), use
-;; (binding [fuzzy-match.core/*lu-threshold 128]
+;; (binding [fuzzy-match.core/*lu-threshold* 128]
 ;;   ... )
 (def ^:dynamic *lu-threshold* 512)
 
