@@ -17,8 +17,8 @@ The challenge of this exercise is to write a library that does fuzzy sring match
  Please see the `fuzzy-match` function in the `fuzzy-match.core` namespace.
 
 > How could we make the fuzzy-matching function richer?
- - synonyms
- - what else?
+>  - synonyms
+>  - what else?
  
  ## License
  
